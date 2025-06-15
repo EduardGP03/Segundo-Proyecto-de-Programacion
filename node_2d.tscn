@@ -1,0 +1,103 @@
+[gd_scene load_steps=5 format=3 uid="uid://b1i7b1ud06tur"]
+
+[ext_resource type="Script" path="res://Node2d.cs" id="1_dtcvd"]
+[ext_resource type="Texture2D" uid="uid://dnddk68tl28sk" path="res://Untitled.png" id="2_skuhi"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_w2tkw"]
+texture = ExtResource("2_skuhi")
+texture_region_size = Vector2i(1, 1)
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+4:0/0 = 0
+5:0/0 = 0
+6:0/0 = 0
+7:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_of0yt"]
+tile_size = Vector2i(1, 1)
+sources/0 = SubResource("TileSetAtlasSource_w2tkw")
+
+[node name="Node2D" type="Node2D" node_paths=PackedStringArray("Screen", "Camera", "Code", "WindowMessage", "direction1", "number", "direction2")]
+z_index = 20
+script = ExtResource("1_dtcvd")
+Screen = NodePath("TileMapLayer")
+Camera = NodePath("Camera2D")
+Code = NodePath("CanvasLayer/CodeEdit")
+WindowMessage = NodePath("CanvasLayer/Label")
+direction1 = NodePath("CanvasLayer/TextEdit")
+number = NodePath("CanvasLayer/TextEdit2")
+direction2 = NodePath("CanvasLayer/TextEdit3")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer"]
+offset_left = 648.0
+offset_right = 1152.0
+offset_bottom = 648.0
+color = Color(0.827451, 0.0627451, 0.137255, 1)
+
+[node name="Label" type="Label" parent="CanvasLayer"]
+z_index = 60
+offset_left = 648.0
+offset_top = 399.0
+offset_right = 1152.0
+offset_bottom = 492.0
+
+[node name="Label2" type="Label" parent="CanvasLayer"]
+offset_left = 648.0
+offset_top = 508.0
+offset_right = 817.0
+offset_bottom = 542.0
+text = "fn + F1 ejecutar"
+
+[node name="Label3" type="Label" parent="CanvasLayer"]
+offset_left = 648.0
+offset_top = 546.0
+offset_right = 817.0
+offset_bottom = 578.0
+text = "fn + F2 guardar"
+
+[node name="Label4" type="Label" parent="CanvasLayer"]
+offset_left = 648.0
+offset_top = 586.0
+offset_right = 817.0
+offset_bottom = 618.0
+text = "fn + F3 redimensionar"
+
+[node name="Label5" type="Label" parent="CanvasLayer"]
+offset_left = 648.0
+offset_top = 620.0
+offset_right = 817.0
+offset_bottom = 648.0
+text = "fn + F4 cargar"
+
+[node name="CodeEdit" type="CodeEdit" parent="CanvasLayer"]
+offset_left = 648.0
+offset_right = 1152.0
+offset_bottom = 362.0
+
+[node name="TextEdit" type="TextEdit" parent="CanvasLayer"]
+offset_left = 831.0
+offset_top = 543.0
+offset_right = 1152.0
+offset_bottom = 580.0
+
+[node name="TextEdit2" type="TextEdit" parent="CanvasLayer"]
+offset_left = 831.0
+offset_top = 580.0
+offset_right = 905.0
+offset_bottom = 614.0
+
+[node name="TextEdit3" type="TextEdit" parent="CanvasLayer"]
+offset_left = 831.0
+offset_top = 614.0
+offset_right = 1152.0
+offset_bottom = 648.0
+
+[node name="Camera2D" type="Camera2D" parent="."]
+anchor_mode = 0
+
+[node name="TileMapLayer" type="TileMapLayer" parent="."]
+tile_set = SubResource("TileSet_of0yt")
