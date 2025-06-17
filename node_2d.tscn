@@ -19,7 +19,7 @@ texture_region_size = Vector2i(1, 1)
 tile_size = Vector2i(1, 1)
 sources/0 = SubResource("TileSetAtlasSource_w2tkw")
 
-[node name="Node2D" type="Node2D" node_paths=PackedStringArray("Screen", "Camera", "Code", "WindowMessage", "direction1", "number", "direction2")]
+[node name="Node2D" type="Node2D" node_paths=PackedStringArray("Screen", "Camera", "Code", "WindowMessage", "direction1", "number", "direction2", "Error")]
 z_index = 20
 script = ExtResource("1_dtcvd")
 Screen = NodePath("TileMapLayer")
@@ -29,6 +29,7 @@ WindowMessage = NodePath("CanvasLayer/Label")
 direction1 = NodePath("CanvasLayer/TextEdit")
 number = NodePath("CanvasLayer/TextEdit2")
 direction2 = NodePath("CanvasLayer/TextEdit3")
+Error = NodePath("CanvasLayer/Label6")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -44,6 +45,7 @@ offset_left = 648.0
 offset_top = 399.0
 offset_right = 1152.0
 offset_bottom = 492.0
+autowrap_mode = 3
 
 [node name="Label2" type="Label" parent="CanvasLayer"]
 offset_left = 648.0
@@ -73,10 +75,18 @@ offset_right = 817.0
 offset_bottom = 648.0
 text = "fn + F4 cargar"
 
+[node name="Label6" type="Label" parent="CanvasLayer"]
+offset_left = 648.0
+offset_top = 366.0
+offset_right = 716.0
+offset_bottom = 402.0
+text = "Respuesta del programa:"
+
 [node name="CodeEdit" type="CodeEdit" parent="CanvasLayer"]
 offset_left = 648.0
 offset_right = 1152.0
 offset_bottom = 362.0
+gutters_draw_line_numbers = true
 
 [node name="TextEdit" type="TextEdit" parent="CanvasLayer"]
 offset_left = 831.0

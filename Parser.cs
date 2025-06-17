@@ -275,7 +275,7 @@ public class Parser
 
         if (Tools.Search(typeToken, CurrentToken))
         {
-            Node term_1 = Term();
+            Node term_1 = And();
             return ExpressionRight(term_1);
         }
 
@@ -285,22 +285,20 @@ public class Parser
 
     Node ExpressionRight(Node term_1)
     {
-        TypeToken[] typeToken = { TypeToken.And, TypeToken.Plus, TypeToken.Minus };
-        TypeToken[] typeToken1 = { TypeToken.End, TypeToken.Comma, TypeToken.CloseParenthesis, TypeToken.NewLine, TypeToken.EqualsEquals, TypeToken.Distint, TypeToken.Greater, TypeToken.Less, TypeToken.GreaterEquals, TypeToken.LessEquals };
+        TypeToken[] typeToken = { TypeToken.And };
+        TypeToken[] typeToken1 = { TypeToken.End, TypeToken.Comma, TypeToken.CloseParenthesis, TypeToken.NewLine };
 
         if (Tools.Search(typeToken, CurrentToken))
         {
             Token token = CurrentToken;
-            Node plusMinusAnd = PlusMinusAnd();
-            Node term_2 = Term();
+            Match(TypeToken.And);
+            Node and = And();
 
-            if (plusMinusAnd.NodeType != Type.Integer && (term_1.NodeType != Type.Boolean || term_2.NodeType != Type.Boolean))
-                throw new SemanticException(plusMinusAnd.NodeToken, "El operador && debe operar con valores booleanos ");
+            if (term_1.NodeType != Type.Boolean || and.NodeType != Type.Boolean)
+                throw new SemanticException(token, "El operador && tiene que ser usado con variables buleanas ");
 
-            if (plusMinusAnd.NodeType == Type.Integer && (term_1.NodeType != Type.Integer || term_2.NodeType != Type.Integer))
-                throw new SemanticException(plusMinusAnd.NodeToken, "El operadores + y - deben operar con enteros ");
+            NodeOperator operation = new NodeOperator(term_1, and, Table, Type.Boolean, token);
 
-            NodeOperator operation = new NodeOperator(term_1, term_2, Table, plusMinusAnd.NodeType, token);
             return ExpressionRight(operation);
         }
 
@@ -310,7 +308,134 @@ public class Parser
         }
 
         else
-            throw new SintacticException(CurrentToken, "Se esperaba and, +, -, end, coma, ), nueva linea o operador de comparacion ");
+            throw new SintacticException(CurrentToken, "Se esperaba un &&, coma, parentesis cerrado, un cambio de linea o un final del programa ");
+    }
+
+    Node And()
+    {
+        TypeToken[] typeToken = { TypeToken.Variable, TypeToken.OpenParenthesis, TypeToken.Number, TypeToken.True, TypeToken.False, TypeToken.GetActualY, TypeToken.GetActualX, TypeToken.IsBrushSize, TypeToken.IsBrushColor, TypeToken.IsCanvasColor, TypeToken.GetCanvasSize, TypeToken.GetColorCount };
+
+        if (Tools.Search(typeToken, CurrentToken))
+        {
+            Node or = Or();
+
+            return AndRight(or);
+        }
+
+        else
+            throw new SintacticException(CurrentToken, "Se esperaba una variable, (, true, false o una funcion ");
+    }
+
+    Node AndRight(Node node)
+    {
+        TypeToken[] typeToken = { TypeToken.End, TypeToken.Comma, TypeToken.And, TypeToken.OpenParenthesis, TypeToken.NewLine };
+        TypeToken[] typeToken1 = { TypeToken.End, TypeToken.Comma, TypeToken.And, TypeToken.CloseParenthesis, TypeToken.NewLine};
+
+        if (CurrentToken.Type == TypeToken.Or)
+        {
+            Token token = CurrentToken;
+            Match(TypeToken.Or);
+            Node or = Or();
+
+            if (or.NodeType != Type.Boolean || node.NodeType != Type.Boolean)
+                throw new SemanticException(token, "El || debe operar con buleanos ");
+
+            NodeOperator node_1 = new NodeOperator(node, or, Table, Type.Boolean, token);
+
+            return AndRight(node_1);
+        }
+
+        else if (Tools.Search(typeToken1, CurrentToken))
+            return node;
+
+        else
+            throw new SintacticException(CurrentToken, "Se esperaba coma, ||, &&, (, salto de linea o final del programa");
+    }
+
+    Node Or()
+    {
+        TypeToken[] typeToken = { TypeToken.Variable, TypeToken.OpenParenthesis, TypeToken.Number, TypeToken.True, TypeToken.False, TypeToken.GetActualX, TypeToken.GetActualY, TypeToken.IsBrushSize, TypeToken.IsBrushColor, TypeToken.IsCanvasColor, TypeToken.GetCanvasSize, TypeToken.GetColorCount };
+
+        if (Tools.Search(typeToken, CurrentToken))
+        {
+            Node node = ExpressionPart();
+
+            return OrRight(node);
+        }
+
+        else
+            throw new SintacticException(CurrentToken, "Se esperaba una variable, ( , numero, true, false o una funcion ");
+    }
+
+    Node OrRight(Node node)
+    {
+        TypeToken[] typeToken = { TypeToken.EqualsEquals, TypeToken.Greater, TypeToken.Less, TypeToken.Distint, TypeToken.GreaterEquals, TypeToken.LessEquals };
+        TypeToken[] typeToken1 = { TypeToken.End, TypeToken.Comma, TypeToken.Or, TypeToken.And, TypeToken.CloseParenthesis, TypeToken.NewLine};
+
+        if (Tools.Search(typeToken, CurrentToken))
+        {
+
+            Token token = CurrentToken;
+
+            Node node_1 = Relation();
+            Node node_2 = ExpressionPart();
+
+            if ((node_1.NodeToken.Type == TypeToken.EqualsEquals || node_1.NodeToken.Type == TypeToken.Distint) && node.NodeType != node_2.NodeType)
+                throw new SemanticException(token, "El == y != deben trabajar con el mismo tipo de variable ");
+
+            if (!(node_1.NodeToken.Type == TypeToken.EqualsEquals || node_1.NodeToken.Type == TypeToken.Distint) && (node.NodeType != Type.Integer || node_2.NodeType != Type.Integer))
+                throw new SemanticException(token, "Los operadores <, <=, >, >= deben operar con enteros ");
+
+            NodeOperator node_3 = new NodeOperator(node, node_2, Table, node_1.NodeType, token);
+
+            return OrRight(node_3);
+        }
+
+        else if(Tools.Search(typeToken1, CurrentToken))
+            return node;
+
+        else
+            throw new SintacticException(CurrentToken, "Se esperaba una coma, ||, (, salto de linea o fin del programa ");
+    }
+
+    Node ExpressionPart()
+    {
+        TypeToken[] typeToken = { TypeToken.Variable, TypeToken.OpenParenthesis, TypeToken.Number, TypeToken.True, TypeToken.False, TypeToken.GetActualX, TypeToken.GetActualY, TypeToken.IsBrushSize, TypeToken.IsBrushColor, TypeToken.IsCanvasColor, TypeToken.GetCanvasSize, TypeToken.GetColorCount };
+    
+        if(Tools.Search(typeToken, CurrentToken))
+        {
+            Node node = Term();
+            return ExpressionPartRight(node);
+        }
+
+        else 
+            throw new SintacticException(CurrentToken, "Se esperaba variable, (, numero, true, false o una funcion ");
+    }
+
+    Node ExpressionPartRight(Node node)
+    {
+        TypeToken[] typeToken = {TypeToken.End,TypeToken.Or, TypeToken.Comma, TypeToken.And, TypeToken.CloseParenthesis, TypeToken.NewLine, TypeToken.EqualsEquals, TypeToken.Greater, TypeToken.Less, TypeToken.Distint,TypeToken.GreaterEquals, TypeToken.LessEquals};
+        
+        if(CurrentToken.Type == TypeToken.Plus || CurrentToken.Type == TypeToken.Minus)
+        {
+            Token token = CurrentToken;
+            Node node_1 = PlusMinus
+    ();
+            Node node_2 = Term();
+            
+            if(node.NodeType != Type.Integer || node_2.NodeType != Type.Integer)
+                throw new SemanticException(token, "El operador + y - trabajan con numeros enteros ");
+        
+            NodeOperator node_3 = new NodeOperator(node, node_2, Table, Type.Integer, token);
+        
+            return ExpressionPartRight(node_3);
+        }
+
+        else if(Tools.Search(typeToken, CurrentToken))
+            return node;
+
+        else 
+            throw new SintacticException(CurrentToken, "Se esperaba ||, &&, (, salto de linea, <, <=, >, >=, ==, != o fin del programa ");
     }
 
     Node Term()
@@ -329,22 +454,19 @@ public class Parser
 
     Node TermRight(Node factor_1)
     {
-        TypeToken[] typeToken = { TypeToken.Or, TypeToken.Product, TypeToken.Division, TypeToken.Modulo };
-        TypeToken[] typeToken1 = { TypeToken.End, TypeToken.Comma, TypeToken.And, TypeToken.Plus, TypeToken.CloseParenthesis, TypeToken.NewLine, TypeToken.EqualsEquals, TypeToken.Distint, TypeToken.Greater, TypeToken.Less, TypeToken.Minus, TypeToken.GreaterEquals, TypeToken.LessEquals };
+        TypeToken[] typeToken = { TypeToken.Product, TypeToken.Division, TypeToken.Modulo };
+        TypeToken[] typeToken1 = { TypeToken.End, TypeToken.Comma, TypeToken.And, TypeToken.Or, TypeToken.Plus, TypeToken.CloseParenthesis, TypeToken.NewLine, TypeToken.EqualsEquals, TypeToken.Distint, TypeToken.Greater, TypeToken.Less, TypeToken.Minus, TypeToken.GreaterEquals, TypeToken.LessEquals };
 
         if (Tools.Search(typeToken, CurrentToken))
         {
             Token token = CurrentToken;
-            Node productDivisionOr = ProductDivisionOr();
+            Node productDivisionOr = ProductDivision();
             Node factor_2 = Factor();
 
-            if (productDivisionOr.NodeType != Type.Integer && (factor_1.NodeType != Type.Boolean || factor_2.NodeType != Type.Boolean))
-                throw new SemanticException(productDivisionOr.NodeToken, "El operador || debe operar con valores booleanos ");
-
-            if (productDivisionOr.NodeType == Type.Integer && (factor_1.NodeType != Type.Integer || factor_2.NodeType != Type.Integer))
+            if (factor_1.NodeType != Type.Integer || factor_2.NodeType != Type.Integer)
                 throw new SemanticException(productDivisionOr.NodeToken, "El operadores *, / o % deben trabajar con enteros ");
 
-            NodeOperator ope = new NodeOperator(factor_1, factor_2, Table, productDivisionOr.NodeType, token);
+            NodeOperator ope = new NodeOperator(factor_1, factor_2, Table, Type.Integer, token);
             return TermRight(ope);
         }
 
@@ -466,32 +588,7 @@ public class Parser
             throw new SintacticException(CurrentToken, "Se esperaba true o false ");
     }
 
-    Node DataInteger()
-    {
-        Token token = CurrentToken;
-
-        if (CurrentToken.Type == TypeToken.Variable)
-        {
-            string name = ((TokenVariableLabel)token).Name;
-            Match(TypeToken.Variable);
-            int position = Table.SearchPosition(name);
-
-            return new NodeVariable(position, Table, Table.Simbols[position].SimbolType, token);
-        }
-
-        else if (CurrentToken.Type == TypeToken.Number)
-        {
-            int number = ((TokenNumber)token).Number;
-            Match(TypeToken.Number);
-
-            return new NodeNumber(number, Type.Integer, token);
-        }
-
-        else
-            throw new SintacticException(CurrentToken, "Se esperaba una variable o numero ");
-    }
-
-    Node PlusMinusAnd()
+    Node PlusMinus()
     {
         Token token = CurrentToken;
         Node node = new NodeNumber(1, Type.Null, token);
@@ -510,18 +607,11 @@ public class Parser
             return new NodeOperator(node, node, Table, Type.Integer, token);
         }
 
-        else if (CurrentToken.Type == TypeToken.And)
-        {
-            Match(TypeToken.And);
-
-            return new NodeOperator(node, node, Table, Type.Boolean, token);
-        }
-
         else
-            throw new SintacticException(CurrentToken, "Se esperaba +, - o and");
+            throw new SintacticException(CurrentToken, "Se esperaba + o -");
     }
 
-    Node ProductDivisionOr()
+    Node ProductDivision()
     {
         Token token = CurrentToken;
         Node node = new NodeNumber(1, Type.Null, token);
@@ -540,13 +630,6 @@ public class Parser
             return new NodeOperator(node, node, Table, Type.Integer, token);
         }
 
-        else if (CurrentToken.Type == TypeToken.Or)
-        {
-            Match(TypeToken.Or);
-
-            return new NodeOperator(node, node, Table, Type.Boolean, token);
-        }
-
         else if (CurrentToken.Type == TypeToken.Modulo)
         {
             Match(TypeToken.Modulo);
@@ -555,7 +638,7 @@ public class Parser
         }
 
         else
-            throw new SintacticException(CurrentToken, "Se esperaba *, / o or");
+            throw new SintacticException(CurrentToken, "Se esperaba *, / o %");
     }
 
     Node Relation()
@@ -714,14 +797,16 @@ public class Parser
     Node GoTo()
     {
         Token token = CurrentToken;
-
         if (CurrentToken.Type == TypeToken.GoTo)
         {
             Match(TypeToken.GoTo);
             Match(TypeToken.OpenBracket);
             Node node1 = Label();
             Match(TypeToken.CloseBracket);
+            Token token1 = CurrentToken;
             Node node2 = ConditionGoTo();
+            if(node2.NodeType != Type.Boolean)
+                throw new SemanticException(token1, "La condicion de goto debe retornar un valor booleano ");
 
             return new NodeOperator(node1, node2, Table, Type.Null, token);
         }
@@ -735,18 +820,10 @@ public class Parser
         if (CurrentToken.Type == TypeToken.OpenParenthesis)
         {
             Match(TypeToken.OpenParenthesis);
-            Node node1 = Expression();
-            Token token = CurrentToken;
-            Node node2 = Relation();
-            Node node3 = Expression();
-            TypeToken typeOp = node2.NodeToken.Type;
-            if ((typeOp == TypeToken.EqualsEquals || typeOp == TypeToken.Distint) && node1.NodeType != node3.NodeType)
-                throw new SemanticException(node2.NodeToken, "El == y != deben operar con valores del mismo tipo");
-            if ((typeOp != TypeToken.EqualsEquals && typeOp != TypeToken.Distint) && (node1.NodeType != Type.Integer || node3.NodeType != Type.Integer))
-                throw new SemanticException(node2.NodeToken, "El <, <=, > y >= deben operar con valores enteros");
+            Node node = Expression();
             Match(TypeToken.CloseParenthesis);
 
-            return new NodeOperator(node1, node3, Table, Type.Boolean, token);
+            return node;
         }
 
         else

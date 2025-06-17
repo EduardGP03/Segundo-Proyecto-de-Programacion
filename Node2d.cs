@@ -14,6 +14,7 @@ public partial class Node2d : Node2D
     [Export] TextEdit direction1;
     [Export] TextEdit number;
     [Export] TextEdit direction2;
+    [Export] Label Error;
 
 
     // Se llama cuando el nodo entra al árbol de escena por primera vez
@@ -260,6 +261,11 @@ public partial class Node2d : Node2D
         catch (SemanticException e)
         {
             ret = "Error Semantico <" + e.TokenException.Row + "," + e.TokenException.Col + ">: " + e.Message;
+        }
+
+        catch (Exception e)
+        {
+            ret = "Error Semantico: " + e.Message;
         }
 
         if (ret == "")

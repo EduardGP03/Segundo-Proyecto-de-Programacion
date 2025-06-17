@@ -19,6 +19,9 @@ public class NodeOperator : Node
         {
             int value = Left.Evaluate(ref iterator);
 
+            if(((SimbolVariableLabel)Table.Simbols[value]).Value == -1)
+                throw new Exception("etiqueta <" + Table.Simbols[value].Identifier + "> no definida");
+
             iterator++;
 
             if (Right.Evaluate(ref iterator) == 1)

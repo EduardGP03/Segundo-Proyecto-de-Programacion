@@ -66,7 +66,7 @@ begin S ->	<lenguaje> ;
 
 <instr> -> <comando> |
 	<asign> |
-	ETIQ |
+	<Etiq> |
 	<saltoCond>  |
 	;
 

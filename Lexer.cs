@@ -43,10 +43,10 @@ public class Lexer
                 string word = Tools.ReadWord(Text, ref Position, large);
 
                 int pos = Table.SearchPosition(word);
-                if(pos != -1)   
+                if (pos != -1)
                 {
-                    if(((SimbolVariableLabel)Table.Simbols[pos]).SimbolToken.Type == TypeToken.Label)
-                      return new TokenVariableLabel(word, Row, Col, TypeToken.Label);
+                    if (((SimbolVariableLabel)Table.Simbols[pos]).SimbolToken.Type == TypeToken.Label)
+                        return new TokenVariableLabel(word, Row, Col, TypeToken.Label);
                     else
                         return new TokenVariableLabel(word, Row, Col, TypeToken.Variable);
                 }
@@ -81,7 +81,7 @@ public class Lexer
                 if (line[line.Length - 1] == '"')
                 {
                     string lineFinal = "";
-                    for(int i = 0; i < line.Length - 1; i++)
+                    for (int i = 0; i < line.Length - 1; i++)
                         lineFinal += line[i];
                     Token tokenLine = new Token(Row, Col, TypeToken.Line);
                     Table.Simbols.Add(new SimbolLine(lineFinal, '0' + lineFinal, tokenLine));
@@ -99,7 +99,7 @@ public class Lexer
 
             if (Text[Position] == '-')
             {
-                if (PreviousToken.Type != TypeToken.Number)
+                if (PreviousToken.Type != TypeToken.Number && PreviousToken.Type != TypeToken.Variable && PreviousToken.Type != TypeToken.CloseParenthesis)
                     return new TokenNumber(0, Row, Col, TypeToken.Number);
 
                 Position++;
@@ -237,7 +237,7 @@ public class Lexer
                 Row++;
                 Position++;
                 startCol = Position;
-                return new Token(Row - 1, Col - 1, TypeToken.NewLine);
+                return new Token(Row - 1, Col, TypeToken.NewLine);
             }
 
             if (Text[Position] == '!')
@@ -247,7 +247,7 @@ public class Lexer
                     Position += 2;
                     return new Token(Row, Col, TypeToken.Distint);
                 }
-                
+
                 return new TokenError(Row, Col, "Despues de ! debe venir un = ");
             }
 
