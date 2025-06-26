@@ -30,6 +30,8 @@ public class Canvas
                 Screen[x, y] = Colors.White;
             }
         }
+
+        brushSize = 1;
     }
 
     public void Spawn(int x, int y)
